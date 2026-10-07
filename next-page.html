@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Левый белый блок */
+        .left-block {
+            width: 50%;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Правый блок с GIF фоном */
+        .right-block {
+            width: 50%;
+            background-color: #000000;
+            background-image: url('images/right-background.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Затемнение фона */
+        .right-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        /* Контейнер для GIF */
+        .gif-box {
+            width: 300px;
+            height: 300px;
+            background-color: #ffffff;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Анимация плавания для ПРАВОГО блока */
+        .right-block .gif-box {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Эффект при наведении (приостанавливает плавание) */
+        .right-block .gif-box:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+            animation-play-state: paused;
+        }
+
+        .gif-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gif-link {
+            text-decoration: none;
+        }
+
+        /* Ключевые кадры анимации плавания */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-20px) rotate(1deg);
+            }
+            50% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            75% {
+                transform: translateY(-15px) rotate(-1deg);
+            }
+        }
+
+        /* Адаптивность для маленьких экранов */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .left-block, .right-block {
+                width: 100%;
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Левый белый блок с GIF -->
+    <div class="left-block">
+        <a class='gif-link' href='page-left'>
+            <div class="gif-box">
+                <img src="images/left-image.gif" alt="Left GIF">
+            </div>
+        </a>
+    </div>
+
+    <!-- Правый блок с GIF фоном и плавающим квадратом -->
+    <div class="right-block">
+        <a class='gif-link' href='page-right'>
+            <div class="gif-box">
+                <img src="images/your-image.gif" alt="Right GIF">
+            </div>
+        </a>
+    </div>
+
+</body>
+</html>

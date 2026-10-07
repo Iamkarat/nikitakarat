@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nikita Karat</title>
+  <meta property="og:title" content="Nikita Karat">
+  <meta property="og:type" content="website">
+  <meta name="format-detection" content="telephone=no">
+  <style>
+    :root {
+      --gutter: clamp(22px, 7vw, 40px);
+      --gap: clamp(14px, 2.5vw, 32px);
+      --section: clamp(44px, 7vw, 88px);
+      --line: rgba(0, 0, 0, .12);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
+    body { margin: 0; background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; }
+    img { display: block; width: 100%; height: auto; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    figure { margin: 0; }
+
+    /* Единая колонка: все блоки выровнены по одним краям */
+    .page { width: min(1200px, 100% - 2 * var(--gutter)); margin: 0 auto; padding: 0 0 var(--section); display: grid; row-gap: var(--section); }
+
+    /* Кадры 28:15 без обрезки */
+    .stack { display: grid; row-gap: var(--gap); }
+    .frame img { aspect-ratio: 28 / 15; object-fit: cover; background: #f4f4f4; }
+    .tape img { aspect-ratio: 30 / 1; object-fit: cover; }
+
+    /* Первые два кадра — во всю ширину окна */
+    .stack--bleed { width: 100vw; margin-left: calc(50% - 50vw); row-gap: 0; }
+    .stack--bleed .frame img { max-height: 60vh; }
+
+    /* Галерея: карточки целиком, с подписями */
+    .gallery { display: grid; row-gap: var(--gap); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
+    .card { cursor: zoom-in; }
+    .card img { aspect-ratio: 1080 / 1380; object-fit: contain; transition: transform .35s ease; }
+    .grid--bleed .card img { aspect-ratio: 888 / 1024; object-fit: cover; }
+    @media (hover: hover) { .card:hover img { transform: translateY(-4px); } }
+
+    /* Подпись */
+    .note__text { margin: 0; font-size: clamp(22px, 2.4vw, 30px); font-weight: 300; line-height: 1.45; text-align: right; }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.is-visible { opacity: 1; transform: none; }
+
+    /* Просмотр работы целиком */
+    .viewer { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .97); cursor: zoom-out; }
+    .viewer.is-open { display: flex; }
+    .viewer__img { width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; }
+    .viewer__close { position: absolute; top: max(8px, env(safe-area-inset-top)); right: 8px; width: 44px; height: 44px; border: 0; background: none; cursor: pointer; }
+    .viewer__close::before, .viewer__close::after { content: ''; position: absolute; left: 10px; right: 10px; top: 21px; height: 2px; background: #000; transform: rotate(45deg); }
+    .viewer__close::after { transform: rotate(-45deg); }
+    .is-locked { overflow: hidden; }
+
+    /* Колючая проволока: декоративный слой поверх страницы */
+    body { position: relative; }
+    .wires { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 5; }
+    .wire { position: absolute; left: 0; top: 0; height: auto; color: #000; overflow: visible; transform-origin: 0 0; will-change: transform; }
+
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid--bleed { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .grid { column-gap: 10px; }
+      .grid--bleed { gap: 10px; }
+      .tape img { aspect-ratio: 20 / 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .card img { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+  <section class="stack stack--bleed">
+    <div class="tape" aria-hidden="true"><img src="images/img-01.gif" alt=""></div>
+    <figure class="frame"><img src="images/img-02.gif" alt="" width="1680" height="900" loading="lazy"></figure>
+  </section>
+  <section class="gallery">
+    <ul class="grid">
+      <li class="card" data-box="0.347,0.176,0.856,0.865"><img src="images/thumb/img-03.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.147,0.117,0.854,0.865"><img src="images/thumb/img-04.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.094,0.136,0.906,0.865"><img src="images/thumb/img-05.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.094,0.091,0.900,0.865"><img src="images/thumb/img-06.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.106,0.095,0.890,0.865"><img src="images/thumb/img-07.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.106,0.088,0.914,0.865"><img src="images/thumb/img-08.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.015,0.091,0.986,0.861"><img src="images/thumb/img-09.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.100,0.091,0.899,0.861"><img src="images/thumb/img-10.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.210,0.095,0.790,0.861"><img src="images/thumb/img-11.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.181,0.091,0.821,0.861"><img src="images/thumb/img-12.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.086,0.089,0.893,0.861"><img src="images/thumb/img-13.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.143,0.089,0.890,0.861"><img src="images/thumb/img-14.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.107,0.088,0.915,0.861"><img src="images/thumb/img-15.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.172,0.087,0.828,0.861"><img src="images/thumb/img-16.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.085,0.087,0.921,0.861"><img src="images/thumb/img-17.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.046,0.176,0.956,0.861"><img src="images/thumb/img-18.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.040,0.122,0.960,0.861"><img src="images/thumb/img-19.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.069,0.123,0.931,0.861"><img src="images/thumb/img-20.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.208,0.058,0.793,0.861"><img src="images/thumb/img-21.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.099,0.071,0.903,0.861"><img src="images/thumb/img-22.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.069,0.123,0.931,0.861"><img src="images/thumb/img-20.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.083,0.070,0.917,0.858"><img src="images/thumb/img-23.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.083,0.065,0.919,0.858"><img src="images/thumb/img-24.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.083,0.065,0.918,0.861"><img src="images/thumb/img-25.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.149,0.070,0.851,0.861"><img src="images/thumb/img-26.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.163,0.051,0.851,0.861"><img src="images/thumb/img-27.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+      <li class="card" data-box="0.203,0.093,0.794,0.861"><img src="images/thumb/img-28.jpg" alt="" loading="lazy" width="1080" height="1380"></li>
+    </ul>
+    <ul class="grid grid--bleed">
+      <li class="card" data-box="0.000,0.000,1.000,1.000"><img src="images/thumb/img-29.jpg" alt="" loading="lazy" width="888" height="1024"></li>
+      <li class="card" data-box="0.000,0.000,1.000,1.000"><img src="images/thumb/img-30.jpg" alt="" loading="lazy" width="888" height="1024"></li>
+      <li class="card" data-box="0.000,0.000,1.000,1.000"><img src="images/thumb/img-31.jpg" alt="" loading="lazy" width="888" height="1024"></li>
+    </ul>
+  </section>
+  <section class="stack">
+    <figure class="frame"><img src="images/img-32.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <figure class="frame"><img src="images/img-33.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <figure class="frame"><img src="images/img-34.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+  </section>
+  <section class="note">
+    <p class="note__text reveal">with aiwa karat</p>
+  </section>
+  <section class="stack">
+    <figure class="frame"><img src="images/img-35.gif" alt="" width="1680" height="900" loading="lazy"></figure>
+    <div class="tape" aria-hidden="true"><img src="images/img-01.gif" alt="" loading="lazy"></div>
+    <figure class="frame"><img src="images/img-36.gif" alt="" width="1680" height="900" loading="lazy"></figure>
+    <div class="tape" aria-hidden="true"><img src="images/img-01.gif" alt="" loading="lazy"></div>
+    <figure class="frame"><img src="images/img-37.gif" alt="" width="1680" height="900" loading="lazy"></figure>
+    <div class="tape" aria-hidden="true"><img src="images/img-01.gif" alt="" loading="lazy"></div>
+    <figure class="frame"><img src="images/img-38.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <div class="tape" aria-hidden="true"><img src="images/img-01.gif" alt="" loading="lazy"></div>
+    <figure class="frame"><img src="images/img-39.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <div class="tape" aria-hidden="true"><img src="images/img-01.gif" alt="" loading="lazy"></div>
+    <figure class="frame"><img src="images/img-40.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <div class="tape" aria-hidden="true"><img src="images/img-01.gif" alt="" loading="lazy"></div>
+    <figure class="frame"><img src="images/img-41.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <div class="tape" aria-hidden="true"><img src="images/img-01.gif" alt="" loading="lazy"></div>
+    <figure class="frame"><img src="images/img-42.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <div class="tape" aria-hidden="true"><img src="images/img-01.gif" alt="" loading="lazy"></div>
+    <figure class="frame"><img src="images/img-43.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <figure class="frame"><img src="images/img-44.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <figure class="frame"><img src="images/img-45.jpg" alt="" width="1680" height="900" loading="lazy"></figure>
+    <figure class="frame"><img src="images/img-46.gif" alt="" width="1680" height="900" loading="lazy"></figure>
+  </section>
+  </main>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="wire" viewBox="0 0 120 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0 12q7.5-5 15 0t15 0 15 0 15 0 15 0 15 0 15 0 15 0"/>
+        <path d="M0 12q7.5 5 15 0t15 0 15 0 15 0 15 0 15 0 15 0 15 0"/>
+        <path d="M27 8v8M30 7.5v9M33 8v8M24 2l12 20M36 2L24 22"/>
+        <path d="M87 8v8M90 7.5v9M93 8v8M84 2l12 20M96 2L84 22"/>
+      </g>
+    </symbol>
+  </svg>
+  <div class="wires" id="wires" aria-hidden="true"></div>
+  <div class="viewer" id="viewer" role="dialog" aria-modal="true" hidden>
+    <img class="viewer__img" alt="">
+    <button type="button" class="viewer__close" aria-label="Закрыть"></button>
+  </div>
+  <script>
+    (function () {
+      var items = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) {
+        items.forEach(function (el) { el.classList.add('is-visible'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
+        });
+      });
+      items.forEach(function (el) { io.observe(el); });
+    })();
+    /* Колючая проволока: разбросана по белому фону и ползает, как муравьи, не заходя на изображения */
+    (function () {
+      var CRAWL = true;   // false — проволока лежит неподвижно
+      var DENSITY = 1;    // больше — гуще, меньше — реже
+      var GAP = 4;        // зазор между проволокой и изображением, px
+      var layer = document.getElementById('wires');
+      var NS = 'http://www.w3.org/2000/svg';
+      var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var W = 0, H = 0, ants = [], blocks = [], seed;
+      function rnd() {
+        seed = (seed + 0x6D2B79F5) | 0;
+        var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      }
+      /* Занятые области: кадры, ленты, работы с подписями (по реальным границам) и текст */
+      function collect() {
+        blocks = [];
+        document.querySelectorAll('.frame, .tape, .card, .note').forEach(function (el) {
+          var r = el.getBoundingClientRect();
+          var x = r.left + scrollX, y = r.top + scrollY, b = [0, 0, 1, 1];
+          if (el.dataset.box && getComputedStyle(el.firstElementChild).objectFit === 'contain') b = el.dataset.box.split(',').map(Number);
+          blocks.push([x + r.width * b[0], y + r.height * b[1], x + r.width * b[2], y + r.height * b[3]]);
+        });
+      }
+      /* Свободна ли точка для проволоки с запасом pad вокруг центра */
+      function free(x, y, pad) {
+        if (x < 2 || x > W - 2 || y < pad || y > H - pad) return false;
+        for (var i = 0; i < blocks.length; i++) {
+          var b = blocks[i];
+          if (x > b[0] - pad && x < b[2] + pad && y > b[1] - pad && y < b[3] + pad) return false;
+        }
+        return true;
+      }
+      function place(a) {
+        a.el.style.transform = 'translate(' + a.x.toFixed(1) + 'px,' + a.y.toFixed(1) + 'px) rotate(' + a.dir.toFixed(3) + 'rad) translate(-50%,-50%)';
+      }
+      function build() {
+        W = layer.clientWidth; H = layer.clientHeight;
+        seed = 2046; ants = []; layer.textContent = '';
+        collect();
+        var small = W < 700;
+        var count = Math.min(260, Math.round(H / 1000 * (4.5 + W / 150) * DENSITY));
+        for (var i = 0; i < count; i++) {
+          var w = (small ? 16 : 30) + rnd() * (small ? 28 : 56), x, y, ok = false;
+          for (var t = 0; t < 80 && !ok; t++) {
+            if (t && t % 20 === 0) w *= .8;
+            x = rnd() * W; y = rnd() * H;
+            ok = free(x, y, w / 2 + GAP);
+          }
+          if (!ok) continue;
+          var el = document.createElementNS(NS, 'svg');
+          el.setAttribute('class', 'wire');
+          el.setAttribute('viewBox', '0 0 120 24');
+          el.setAttribute('width', w.toFixed(1));
+          el.appendChild(document.createElementNS(NS, 'use')).setAttribute('href', '#wire');
+          var a = { el: el, pad: w / 2 + GAP, x: x, y: y, dir: rnd() * Math.PI * 2, v: 5 + rnd() * 14, turn: 0 };
+          place(a);
+          layer.appendChild(el);
+          ants.push(a);
+        }
+      }
+      build();
+      var timer;
+      new ResizeObserver(function () {
+        if (layer.clientWidth === W && layer.clientHeight === H) return;
+        clearTimeout(timer);
+        timer = setTimeout(build, 150);
+      }).observe(layer);
+      if (!CRAWL || still) return;
+      var last = 0;
+      function step(now) {
+        var dt = Math.min(.05, (now - last) / 1000 || 0);
+        last = now;
+        var top = scrollY - 200, bottom = scrollY + innerHeight + 200;
+        for (var i = 0; i < ants.length; i++) {
+          var a = ants[i];
+          if (a.y < top || a.y > bottom) continue;
+          a.turn += (Math.random() - .5) * 6 * dt;
+          a.turn *= .98;
+          a.dir += a.turn * dt * 2;
+          var nx = a.x + Math.cos(a.dir) * a.v * dt, ny = a.y + Math.sin(a.dir) * a.v * dt;
+          if (free(nx, ny, a.pad)) { a.x = nx; a.y = ny; }
+          else { a.dir += Math.PI + (Math.random() - .5) * 1.6; a.turn = 0; }
+          place(a);
+        }
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    })();
+    /* Просмотр работы целиком по нажатию */
+    (function () {
+      var viewer = document.getElementById('viewer');
+      var img = viewer.querySelector('.viewer__img');
+      var opener = null;
+      function open(card) {
+        opener = card;
+        img.src = card.querySelector('img').getAttribute('src').replace('/thumb/', '/');
+        viewer.hidden = false;
+        viewer.classList.add('is-open');
+        document.documentElement.classList.add('is-locked');
+        viewer.querySelector('.viewer__close').focus();
+      }
+      function close() {
+        viewer.classList.remove('is-open');
+        viewer.hidden = true;
+        img.removeAttribute('src');
+        document.documentElement.classList.remove('is-locked');
+        if (opener) opener.focus();
+      }
+      document.querySelectorAll('.card').forEach(function (card) {
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.addEventListener('click', function () { open(card); });
+        card.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(card); }
+        });
+      });
+      viewer.addEventListener('click', close);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && viewer.classList.contains('is-open')) close();
+      });
+    })();
+  </script>
+</body>
+</html>

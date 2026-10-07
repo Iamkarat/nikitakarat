@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragmented Personality - Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            padding: 40px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Эффект шума/зерна на фоне */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.07;
+            background-image: url("image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Заголовок (кликабельный) */
+        .page-title {
+            color: #ff0000;
+            font-size: 48px;
+            font-family: 'Times New Roman', serif;
+            text-align: center;
+            margin-bottom: 50px;
+            letter-spacing: 3px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-title:hover {
+            opacity: 0.7;
+            transform: scale(0.98);
+        }
+
+        /* Masonry Layout */
+        .masonry-container {
+            column-count: 5;
+            column-gap: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Все изображения (некликабельные) */
+        .masonry-item-static {
+            break-inside: avoid;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .masonry-item-static:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .masonry-item-static img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+            opacity: 0.85;
+            transition: opacity 0.3s ease;
+        }
+
+        .masonry-item-static:hover img {
+            opacity: 1;
+        }
+
+        /* ==================== МУЗЫКАЛЬНЫЙ ПЛЕЕР ==================== */
+        .music-player {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            border-radius: 12px;
+            padding: 15px 20px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .music-player:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Кнопка Play/Pause */
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            background-color: #ff0000;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .play-btn:hover {
+            background-color: #cc0000;
+            transform: scale(1.1);
+        }
+
+        .play-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #000000;
+        }
+
+        /* Визуалайзер (анимация) */
+        .visualizer {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 30px;
+        }
+
+        .visualizer-bar {
+            width: 4px;
+            background-color: #ff0000;
+            border-radius: 2px;
+            animation: visualize 0.5s ease-in-out infinite;
+        }
+
+        .visualizer-bar:nth-child(1) { animation-delay: 0s; height: 15px; }
+        .visualizer-bar:nth-child(2) { animation-delay: 0.1s; height: 25px; }
+        .visualizer-bar:nth-child(3) { animation-delay: 0.2s; height: 20px; }
+        .visualizer-bar:nth-child(4) { animation-delay: 0.3s; height: 30px; }
+        .visualizer-bar:nth-child(5) { animation-delay: 0.4s; height: 18px; }
+
+        @keyframes visualize {
+            0%, 100% { transform: scaleY(0.3); }
+            50% { transform: scaleY(1); }
+        }
+
+        /* Остановка визуалайзера когда пауза */
+        .music-player.paused .visualizer-bar {
+            animation-play-state: paused;
+            transform: scaleY(0.3);
+        }
+
+        /* Название трека */
+        .track-info {
+            color: #ffffff;
+            font-family: 'Times New Roman', serif;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        /* Регулятор громкости */
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .volume-icon {
+            color: #ff0000;
+            font-size: 18px;
+        }
+
+    
+    
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1200px) {
+            .masonry-container {
+                column-count: 4;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .masonry-container {
+                column-count: 2;
+            }
+            
+            .page-title {
+                font-size: 32px;
+            }
+
+            .music-player {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 15px;
+            }
+
+            .volume-control {
+                display: none; /* Скрыть на мобильных */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Кликабельный заголовок (возврат назад) -->
+    <a class='page-title' href='next-page'>FRAGMENTED PERSONALITY 0.1</a>
+
+    <!-- Masonry с картинами (ХАОТИЧНЫЙ ПОРЯДОК) -->
+    <div class="masonry-container">
+        
+        <!-- Картина 47 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-47.jpg" alt="Painting 47">
+        </div>
+        
+        <!-- Картина 12 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-12.jpg" alt="Painting 12">
+        </div>
+        
+        <!-- Картина 33 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-33.jpg" alt="Painting 33">
+        </div>
+        
+        <!-- Картина 58 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-58.jpg" alt="Painting 58">
+        </div>
+        
+        <!-- Картина 5 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-5.jpg" alt="Painting 5">
+        </div>
+        
+        <!-- Картина 29 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-29.jpg" alt="Painting 29">
+        </div>
+        
+        <!-- Картина 41 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-41.jpg" alt="Painting 41">
+        </div>
+        
+        <!-- Картина 18 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-18.jpg" alt="Painting 18">
+        </div>
+        
+        <!-- Картина 52 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-52.jpg" alt="Painting 52">
+        </div>
+        
+        <!-- Картина 7 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-7.jpg" alt="Painting 7">
+        </div>
+        
+        <!-- Картина 24 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-24.jpg" alt="Painting 24">
+        </div>
+        
+        <!-- Картина 36 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-36.jpg" alt="Painting 36">
+        </div>
+        
+        <!-- Картина 15 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-15.jpg" alt="Painting 15">
+        </div>
+        
+        <!-- Картина 44 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-44.jpg" alt="Painting 44">
+        </div>
+        
+        <!-- Картина 2 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-2.jpg" alt="Painting 2">
+        </div>
+        
+        <!-- Картина 55 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-55.jpg" alt="Painting 55">
+        </div>
+        
+        <!-- Картина 31 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-31.jpg" alt="Painting 31">
+        </div>
+        
+        <!-- Картина 9 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-9.jpg" alt="Painting 9">
+        </div>
+        
+        <!-- Картина 48 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-48.jpg" alt="Painting 48">
+        </div>
+        
+        <!-- Картина 22 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-22.jpg" alt="Painting 22">
+        </div>
+        
+        <!-- Картина 39 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-39.jpg" alt="Painting 39">
+        </div>
+        
+        <!-- Картина 14 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-14.jpg" alt="Painting 14">
+        </div>
+        
+        <!-- Картина 57 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-57.jpg" alt="Painting 57">
+        </div>
+        
+        <!-- Картина 3 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-3.jpg" alt="Painting 3">
+        </div>
+        
+        <!-- Картина 26 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-26.jpg" alt="Painting 26">
+        </div>
+        
+        <!-- Картина 42 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-42.jpg" alt="Painting 42">
+        </div>
+        
+        <!-- Картина 11 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-11.jpg" alt="Painting 11">
+        </div>
+        
+        <!-- Картина 50 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-50.jpg" alt="Painting 50">
+        </div>
+        
+        <!-- Картина 19 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-19.jpg" alt="Painting 19">
+        </div>
+        
+        <!-- Картина 35 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-35.jpg" alt="Painting 35">
+        </div>
+        
+        <!-- Картина 8 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-8.jpg" alt="Painting 8">
+        </div>
+        
+        <!-- Картина 53 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-53.jpg" alt="Painting 53">
+        </div>
+        
+        <!-- Картина 27 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-27.jpg" alt="Painting 27">
+        </div>
+        
+        <!-- Картина 4 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-4.jpg" alt="Painting 4">
+        </div>
+        
+        <!-- Картина 46 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-46.jpg" alt="Painting 46">
+        </div>
+        
+        <!-- Картина 13 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-13.jpg" alt="Painting 13">
+        </div>
+        
+        <!-- Картина 30 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-30.jpg" alt="Painting 30">
+        </div>
+        
+        <!-- Картина 56 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-56.jpg" alt="Painting 56">
+        </div>
+        
+        <!-- Картина 21 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-21.jpg" alt="Painting 21">
+        </div>
+        
+        <!-- Картина 38 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-38.jpg" alt="Painting 38">
+        </div>
+        
+        <!-- Картина 6 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-6.jpg" alt="Painting 6">
+        </div>
+        
+        <!-- Картина 49 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-49.jpg" alt="Painting 49">
+        </div>
+        
+        <!-- Картина 16 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-16.jpg" alt="Painting 16">
+        </div>
+        
+        <!-- Картина 32 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-32.jpg" alt="Painting 32">
+        </div>
+        
+        <!-- Картина 45 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-45.jpg" alt="Painting 45">
+        </div>
+        
+        <!-- Картина 10 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-10.jpg" alt="Painting 10">
+        </div>
+        
+        <!-- Картина 54 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-54.jpg" alt="Painting 54">
+        </div>
+        
+        <!-- Картина 23 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-23.jpg" alt="Painting 23">
+        </div>
+        
+        <!-- Картина 37 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-37.jpg" alt="Painting 37">
+        </div>
+        
+        <!-- Картина 20 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-20.jpg" alt="Painting 20">
+        </div>
+        
+        <!-- Картина 43 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-43.jpg" alt="Painting 43">
+        </div>
+        
+        <!-- Картина 28 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-28.jpg" alt="Painting 28">
+        </div>
+        
+        <!-- Картина 51 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-51.jpg" alt="Painting 51">
+        </div>
+        
+        <!-- Картина 17 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-17.jpg" alt="Painting 17">
+        </div>
+        
+        <!-- Картина 34 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-34.jpg" alt="Painting 34">
+        </div>
+        
+        <!-- Картина 40 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-40.jpg" alt="Painting 40">
+        </div>
+        
+        <!-- Картина 25 -->
+        <div class="masonry-item-static">
+            <img src="images/painting-25.jpg" alt="Painting 25">
+        </div>
+        
+    </div>
+
+    <!-- ==================== МУЗЫКАЛЬНЫЙ ПЛЕЕР ==================== -->
+    <div class="music-player paused" id="musicPlayer">
+        <!-- Кнопка Play/Pause -->
+        <button class="play-btn" id="playBtn" onclick="togglePlay()">
+            <!-- Play иконка -->
+            <svg id="playIcon" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+            <!-- Pause иконка (скрыта) -->
+            <svg id="pauseIcon" viewBox="0 0 24 24" style="display: none;">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+        </button>
+        
+        <!-- Визуалайзер -->
+        <div class="visualizer">
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+        </div>
+        
+        <!-- Название трека -->
+        <div class="track-info">
+            ATMOSPHERIC VIBES
+        </div>
+        
+        <!-- Регулятор громкости -->
+        <div class="volume-control">
+            <span class="volume-icon">🔊</span>
+            <input type="range" class="volume-slider" id="volumeSlider" 
+                   min="0" max="1" step="0.1" value="0.5" 
+                   onchange="setVolume(this.value)">
+        </div>
+        
+        <!-- Аудио элемент (скрытый) -->
+        <audio id="audio" loop>
+            <source src="music/ambient-music.mp3" type="audio/mpeg">
+            <source src="music/ambient-music.ogg" type="audio/ogg">
+            Ваш браузер не поддерживает аудио элемент.
+        </audio>
+    </div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const musicPlayer = document.getElementById('musicPlayer');
+        const volumeSlider = document.getElementById('volumeSlider');
+
+        // Play/Pause
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+                musicPlayer.classList.remove('paused');
+            } else {
+                audio.pause();
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                musicPlayer.classList.add('paused');
+            }
+        }
+
+        // Громкость
+        function setVolume(value) {
+            audio.volume = value;
+        }
+
+        // Установить начальную громкость
+        audio.volume = 0.5;
+
+        // Плавное появление плеера при загрузке
+        window.addEventListener('load', () => {
+            musicPlayer.style.opacity = '0';
+            musicPlayer.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                musicPlayer.style.transition = 'all 0.5s ease';
+                musicPlayer.style.opacity = '1';
+                musicPlayer.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+
+</body>
+</html>
